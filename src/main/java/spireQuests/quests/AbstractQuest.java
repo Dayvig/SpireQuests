@@ -44,8 +44,8 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
     public List<Tracker> trackers;
     protected List<Consumer<Trigger<?>>> triggers;
 
-    private static final int HP_COST_MIN_RANGE = 4;
-    private static final int HP_COST_MAX_RANGE = 8;
+    private static final int HP_COST_MIN_RANGE = 3;
+    private static final int HP_COST_MAX_RANGE = 6;
     private static final int GOLD_COST_MIN_RANGE = 15;
     private static final int GOLD_COST_MAX_RANGE = 25;
     public int hpCost;
@@ -95,7 +95,13 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
     public void setCost() {
         this.hpCost = AbstractDungeon.miscRng.random(HP_COST_MIN_RANGE, HP_COST_MAX_RANGE);
         this.goldCost = AbstractDungeon.miscRng.random(GOLD_COST_MIN_RANGE, GOLD_COST_MAX_RANGE);
-        this.usingGoldCost = AbstractDungeon.miscRng.randomBoolean();
+
+        // neow room quests only cost hp to prevent weird shit with buying quests with gold and then losing all your gold to neow
+        if (AbstractDungeon.floorNum > 1) {
+            this.usingGoldCost = AbstractDungeon.miscRng.randomBoolean();
+        } else {
+            this.usingGoldCost = false;
+        }
     }
 
     public int getCost() {

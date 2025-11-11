@@ -2,6 +2,7 @@ package spireQuests;
 
 import basemod.AutoAdd;
 import basemod.BaseMod;
+import basemod.ModLabeledToggleButton;
 import basemod.ModPanel;
 import basemod.helpers.RelicType;
 import basemod.interfaces.*;
@@ -16,6 +17,7 @@ import com.google.gson.Gson;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.core.Settings;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.helpers.FontHelper;
 import com.megacrit.cardcrawl.localization.*;
 import com.megacrit.cardcrawl.unlock.UnlockTracker;
 import javassist.CtClass;
@@ -29,6 +31,7 @@ import spireQuests.quests.QuestManager;
 import spireQuests.ui.QuestBoardScreen;
 import spireQuests.util.TexLoader;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -54,6 +57,8 @@ public class Anniv8Mod implements
     };
 
     public static Anniv8Mod thismod;
+    public static final String HARD_MODE_CONFIG = "hardModeConfig";
+    public static boolean hardModeConfig = false;
     public static SpireConfig modConfig = null;
 
     public static final String modID = "anniv8";
@@ -131,6 +136,7 @@ public class Anniv8Mod implements
 
         try {
             Properties defaults = new Properties();
+            defaults.put(HARD_MODE_CONFIG, false);
             modConfig = new SpireConfig(modID, "anniv8Config", defaults);
         } catch (Exception e) {
             e.printStackTrace();
@@ -171,8 +177,8 @@ public class Anniv8Mod implements
         QuestManager.initialize();
         addPotions();
         addSaveFields();
-        initializeConfig();
         initializeSavedData();
+        initializeConfig();
 
         BaseMod.addCustomScreen(new QuestBoardScreen());
     }
@@ -331,11 +337,22 @@ public class Anniv8Mod implements
         Texture badge = TexLoader.getTexture(makeImagePath("ui/badge.png"));
 
         settingsPanel = new ModPanel();
+        ModLabeledToggleButton toggleHardModeButton = new ModLabeledToggleButton(configStrings.TEXT[3],
+                350.0f, 700.0f, Settings.CREAM_COLOR, FontHelper.charDescFont,
+                hardModeConfig,
+                settingsPanel,
+                (label) -> {},
+                (button) -> {
+                    hardModeConfig = button.enabled;
+                    saveConfig();
+                });
+        settingsPanel.addUIElement(toggleHardModeButton);
 
         BaseMod.registerModBadge(badge, configStrings.TEXT[0], configStrings.TEXT[1], configStrings.TEXT[2], settingsPanel);
     }
 
     private void initializeSavedData() {
+        hardModeConfig = modConfig.getBool(HARD_MODE_CONFIG);
     }
 
     public static void addSaveFields() {
@@ -348,7 +365,16 @@ public class Anniv8Mod implements
     }
 
     public static boolean questsHaveCost() {
-        return AbstractDungeon.floorNum > 1;
+        return hardModeConfig;
+    }
+
+    public static void saveConfig() {
+        try {
+            modConfig.setBool(HARD_MODE_CONFIG, hardModeConfig);
+            modConfig.save();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
