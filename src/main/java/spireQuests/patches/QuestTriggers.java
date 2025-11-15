@@ -1,6 +1,7 @@
 package spireQuests.patches;
 
 import com.evacipated.cardcrawl.modthespire.lib.*;
+import com.megacrit.cardcrawl.actions.GameActionManager;
 import com.megacrit.cardcrawl.actions.utility.UseCardAction;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.CardGroup;
@@ -10,6 +11,7 @@ import com.megacrit.cardcrawl.core.AbstractCreature;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.map.MapRoomNode;
+import com.megacrit.cardcrawl.rooms.AbstractRoom;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import javassist.CtBehavior;
 import spireQuests.quests.Trigger;
@@ -22,6 +24,7 @@ public class QuestTriggers {
     public static final Trigger<MapRoomNode> LEAVE_ROOM = new Trigger<>();
     public static final Trigger<AbstractCard> PLAY_CARD = new Trigger<>();
     public static final Trigger<Integer> DAMAGE_TAKEN = new Trigger<>();
+    public static final Trigger<Void> TURN_START = new Trigger<>();
 
     private static boolean disabled() {
         return CardCrawlGame.mode != CardCrawlGame.GameMode.GAMEPLAY;
@@ -115,6 +118,25 @@ public class QuestTriggers {
             @Override
             public int[] Locate(CtBehavior ctMethodToPatch) throws Exception {
                 Matcher finalMatcher = new Matcher.FieldAccessMatcher(AbstractDungeon.class, "effectList");
+                return LineFinder.findInOrder(ctMethodToPatch, finalMatcher);
+            }
+        }
+    }
+
+    @SpirePatch2(clz = GameActionManager.class, method = "getNextAction")
+    @SpirePatch2(clz = AbstractRoom.class, method = "update")
+    public static class OnTurnStart {
+        @SpireInsertPatch(locator = Locator.class)
+        public static void turnStartPatch() {
+            if (disabled()) return;
+
+            TURN_START.trigger();
+        }
+
+        private static class Locator extends SpireInsertLocator {
+            @Override
+            public int[] Locate(CtBehavior ctMethodToPatch) throws Exception {
+                Matcher finalMatcher = new Matcher.MethodCallMatcher(AbstractPlayer.class, "applyStartOfTurnRelics");
                 return LineFinder.findInOrder(ctMethodToPatch, finalMatcher);
             }
         }
