@@ -67,7 +67,12 @@ public class QuestUI {
 
             Hitbox hb = questHitboxes.get(i);
 
-            float height = SMALL_SPACING * (1 + quest.questRewards.size());
+            int trackerCount = 1;
+            for (AbstractQuest.Tracker t : quest.trackers) {
+                if (!t.hidden()) ++trackerCount;
+            }
+
+            float height = SMALL_SPACING * trackerCount;
             currentY -= height;
 
             hb.resize(quest.width, height - 2);
