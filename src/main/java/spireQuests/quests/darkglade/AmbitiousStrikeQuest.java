@@ -16,6 +16,9 @@ public class AmbitiousStrikeQuest extends AbstractQuest {
     public AmbitiousStrikeQuest() {
         super(QuestType.SHORT, QuestDifficulty.HARD);
         new TriggeredUpdateTracker<>(QuestTriggers.VICTORY, 0, 1, () -> {
+            ArrayList<AbstractCard> cardsPlayed = AbstractDungeon.actionManager.cardsPlayedThisCombat;
+            if(cardsPlayed == null || cardsPlayed.isEmpty()) return 0;
+
             AbstractCard lastCard = AbstractDungeon.actionManager.cardsPlayedThisCombat.get(AbstractDungeon.actionManager.cardsPlayedThisCombat.size() - 1);
             if (lastCard.hasTag(AbstractCard.CardTags.STARTER_STRIKE) && AbstractDungeon.getCurrRoom().eliteTrigger) {
                 return 1;
