@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class PristineCardsQuest extends AbstractQuest {
-    private static final TextureRegion ICON = new TextureRegion(ImageMaster.RUN_HISTORY_MAP_ICON_CHEST); //temporary
+
     protected static final int PRISTINE_CARDS_RATE = 50;
 
 
@@ -45,6 +45,7 @@ public class PristineCardsQuest extends AbstractQuest {
         for (AbstractCard c : toUpgrade) {
             c.upgrade();
             AbstractDungeon.topLevelEffectsQueue.add(new ShowCardBrieflyEffect(c.makeStatEquivalentCopy(), spacing * i, Settings.HEIGHT/2f));
+            i++;
         }
     }
 
