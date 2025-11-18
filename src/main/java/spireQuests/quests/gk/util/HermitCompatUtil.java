@@ -49,12 +49,12 @@ public final class HermitCompatUtil {
     }
 
     /**
-     * After dealing the actual Dead On damage
+     * Called after Deadon effect happened
      */
     public static void postDeadOnEffects(AbstractPlayer p, int times) {
         init();
 
-        // ---- BigShot ----
+        // BigShot
         if (p.hasPower(BIGSHOT_ID) && vigorIsActive != null) {
             try {
                 int v = vigorIsActive.getInt(null);
@@ -63,7 +63,7 @@ public final class HermitCompatUtil {
             }
         }
 
-        // ---- Combo ----
+        // Combo
         if (p.hasPower(COMBO_ID)) {
             try {
                 AbstractPower comb = p.getPower(COMBO_ID);
@@ -85,14 +85,14 @@ public final class HermitCompatUtil {
             }
         }
 
-        // ---- Snipe ----
+        // Snipe
         if (p.hasPower(SNIPE_ID)) {
             AbstractPower snipe = p.getPower(SNIPE_ID);
             snipe.flash();
             AbstractDungeon.actionManager.addToTop(new ReducePowerAction(p, p, SNIPE_ID, 1));
         }
 
-        // ---- BlackPowder (for each hit) ----
+        // BlackPowder (for each hit)
         for (int i = 0; i < times; i++) {
             for (AbstractRelic r : p.relics) {
                 if (BLACKPOWDER_ID.equals(r.relicId)) {

@@ -32,7 +32,6 @@ public class CompatUtil {
     public static void initGunEffect() {
         try {
             Class<?> enumPatchClass = Class.forName("hermit.patches.EnumPatch");
-            // public static field, so use getField and pass null to get(...)
             HERMIT_GUN_EFFECT = (AbstractGameAction.AttackEffect) enumPatchClass.getField("HERMIT_GUN").get(null);
         } catch(ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
             Anniv8Mod.logger.warn("Couldn't get HERMIT_GUN attack effect");
