@@ -38,7 +38,7 @@ public class UpgradeNextPower extends AbstractSQPower {
             return;
         }
 
-        if (card.type != AbstractCard.CardType.POWER) {
+        if (card.type != AbstractCard.CardType.POWER && card.canUpgrade()) {
             flash();
             card.upgrade();
         }
