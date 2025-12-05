@@ -39,7 +39,7 @@ public class PackFanaticQuest extends AbstractQuest {
                     .distinct()
                     .collect(Collectors.toList());
             Set<String> poolPackIDs = getCurrentPoolPackIDs();
-            return deckPackIDs.stream().filter(poolPackIDs::contains).count();
+            return (int)deckPackIDs.stream().filter(poolPackIDs::contains).count();
         }).add(this);
 
         addReward(new QuestReward.CardReward(new PerfectlyPacked()));
