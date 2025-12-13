@@ -29,7 +29,6 @@ public class CowardiceQuest extends AbstractQuest {
     public boolean dodgedElite(MapRoomNode currNode){
         boolean connectedToElite = false;
         for (MapRoomNode m : AbstractDungeon.map.get(currNode.y + 1)){
-            if (m.getRoom() != null){System.out.println(m.getRoom().toString());}
             if (m.getRoom() != null && currNode.isConnectedTo(m) && m.getRoom() instanceof MonsterRoomElite && m != AbstractDungeon.nextRoom){
                 connectedToElite = true;
                 break;
