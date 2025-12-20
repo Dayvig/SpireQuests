@@ -16,11 +16,9 @@ public class JAXEventReplacePatch {
     public static class JaxEventReplace {
         public static SpireReturn Prefix(AbstractDungeon __instance, EventHelper.RoomResult r) {
             for (AbstractQuest q : QuestManager.currentQuests.get(AbstractDungeon.player)){
-                System.out.println(q.id);
                 if (q instanceof AddictQuest) {
                     AddictQuest addictQ = (AddictQuest) q;
                     if (!addictQ.hasReplacedEvent){
-                        System.out.println("Test");
                         ForcedEventRoom newAddictEvent = new ForcedEventRoom(new ForcedDrugsEvent());
                         addictQ.hasReplacedEvent = true;
                         return SpireReturn.Return(newAddictEvent);
