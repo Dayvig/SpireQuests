@@ -38,7 +38,7 @@ public class CowardiceQuest extends AbstractQuest {
                 break;
             }
         }
-        return connectedToElite;
+        return connectedToElite && !(AbstractDungeon.nextRoom instanceof MonsterRoomElite);
     }
 
     @Override
