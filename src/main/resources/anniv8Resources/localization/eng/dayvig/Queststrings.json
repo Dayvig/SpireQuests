@@ -5,7 +5,15 @@
     "AUTHOR": "Dayvig",
     "REWARD": "Random common #yRelic.",
     "TRACKER_TEXT": [
-      "Elites dodged"
+      "Elites Dodged"
+    ]
+  },
+  "${ModID}:AddictQuest": {
+    "TITLE": "Addictive Personality",
+    "DESCRIPTION": "Play J.A.X. in 5 consecutive fights. Your next ? Room will be a special Augmenter Event.",
+    "AUTHOR": "Dayvig",
+    "TRACKER_TEXT": [
+      "J.A.X. Taken in Consecutive Combats"
     ]
   }
 }
