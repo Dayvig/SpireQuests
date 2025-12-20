@@ -3,11 +3,7 @@ package spireQuests.quests.dayvig;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.cards.colorless.JAX;
-import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
-import com.megacrit.cardcrawl.events.city.Addict;
-import com.megacrit.cardcrawl.events.city.DrugDealer;
 import com.megacrit.cardcrawl.map.MapRoomNode;
-import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rooms.EventRoom;
 import spireQuests.patches.QuestTriggers;
 import spireQuests.quests.AbstractQuest;
