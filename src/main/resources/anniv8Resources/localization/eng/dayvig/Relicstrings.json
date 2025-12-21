@@ -5,5 +5,12 @@
     "DESCRIPTIONS": [
       "Reduce HP loss from JAX to 1. At the end of combat, lose 6 HP if you didn't play JAX."
     ]
+  },
+  "${ModID}:Binder": {
+    "NAME": "Three Ring Binder",
+    "FLAVOR": "The perfect tool for keeping everything exactly as it should be.",
+    "DESCRIPTIONS": [
+      "On pickup, round your Max HP and Gold to the nearest multiple of 25."
+    ]
   }
 }
