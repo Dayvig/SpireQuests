@@ -7,8 +7,6 @@ import static spireQuests.Anniv8Mod.makeID;
 public class Binder extends AbstractSQRelic {
 
     public static final String ID = makeID(Binder.class.getSimpleName());
-    public static final int DIVISOR = 25;
-
 
     public Binder() {
         super(ID, "dayvig", RelicTier.SPECIAL, LandingSound.FLAT);
