@@ -15,13 +15,5 @@
     "TRACKER_TEXT": [
       "J.A.X. Taken in Consecutive Combats"
     ]
-  },
-  "${ModID}:NeatQuest": {
-    "TITLE": "Organized Deck",
-    "DESCRIPTION": "Have a deck of exactly 10 Skills, 10 Attacks, and 5 Powers.",
-    "AUTHOR": "Dayvig",
-    "TRACKER_TEXT": [
-      "10 Skills, 10 Attacks, 5 Powers in deck."
-    ]
   }
 }
