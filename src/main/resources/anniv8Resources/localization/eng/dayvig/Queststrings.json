@@ -10,7 +10,7 @@
   },
   "${ModID}:AddictQuest": {
     "TITLE": "Addictive Personality",
-    "DESCRIPTION": "Play J.A.X. in 5 consecutive fights. Your next ? Room will be a special Augmenter Event.",
+    "DESCRIPTION": "Play #yJ.A.X. in 5 consecutive fights. Your next #y? Room will contain a special Augmenter event which grants #yJ.A.X. (no other options.)",
     "AUTHOR": "Dayvig",
     "TRACKER_TEXT": [
       "J.A.X. Taken in Consecutive Combats"

@@ -31,9 +31,7 @@ public class AddictQuest extends AbstractQuest {
                 .setResetTrigger(QuestTriggers.COMBAT_END, (x) -> !tookJax)
                 .add(this);
 
-        jaxTracker = new TriggerTracker<>(QuestTriggers.PLAY_CARD, 1)
-                .triggerCondition(this::playedJax)
-                .hide()
+        jaxTracker = new TriggerEvent<>(QuestTriggers.PLAY_CARD, this::playedJax)
                 .add(this);
 
         addReward(new QuestReward.RelicReward(new MutagenBlood()));

@@ -1,5 +1,6 @@
 package spireQuests.quests.dayvig.rooms;
 
+import com.megacrit.cardcrawl.cards.colorless.JAX;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.events.city.DrugDealer;
@@ -10,12 +11,10 @@ import spireQuests.util.QuestStrings;
 
 public class ForcedDrugsEvent extends DrugDealer {
 
-    //public QuestStrings questStrings =
-
     public ForcedDrugsEvent() {
         super();
         this.imageEventText.clearAllDialogs();
-        this.imageEventText.setDialogOption(OPTIONS[0], CardLibrary.getCopy("J.A.X."));
+        this.imageEventText.setDialogOption(OPTIONS[0], CardLibrary.getCopy(JAX.ID));
         if (AbstractDungeon.player.masterDeck.getPurgeableCards().size() >= 2) {
             this.imageEventText.setDialogOption(OPTIONS[1], true);
         } else {

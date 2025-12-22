@@ -3,7 +3,7 @@
     "NAME": "Mutagen Blood",
     "FLAVOR": "Woops. I forgot to tell you about side effects. NL -The Augmenter",
     "DESCRIPTIONS": [
-      "Reduce HP loss from JAX to 1. At the end of combat, lose 6 HP if you didn't play JAX."
+      "Reduce HP loss from #yJ.A.X. to #b1. At the end of combat, lose #b6 HP if you didn't play #yJ.A.X."
     ]
   },
   "${ModID}:Binder": {
