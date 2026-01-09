@@ -1,9 +1,12 @@
 package spireQuests.quests.gk;
 
+import com.megacrit.cardcrawl.core.Settings;
+import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.relics.SmilingMask;
 import spireQuests.patches.QuestTriggers;
 import spireQuests.quests.AbstractQuest;
 import spireQuests.quests.QuestReward;
+import spireQuests.util.Wiz;
 
 public class FavouriteCustomerQuest extends AbstractQuest {
     public FavouriteCustomerQuest() {
@@ -13,5 +16,10 @@ public class FavouriteCustomerQuest extends AbstractQuest {
                 .add(this);
 
         addReward(new QuestReward.RelicReward(new SmilingMask()));
+    }
+
+    @Override
+    public boolean canSpawn() {
+        return !Wiz.p().hasRelic(SmilingMask.ID) && (Settings.isEndless || AbstractDungeon.actNum < 40);
     }
 }
