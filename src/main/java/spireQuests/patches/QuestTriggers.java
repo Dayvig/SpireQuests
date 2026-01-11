@@ -303,8 +303,6 @@ public class QuestTriggers {
         }
     }
 
-    @SpirePatch2(clz= PotionPopUp.class, method = "updateInput")
-    @SpirePatch2(clz= PotionPopUp.class, method = "updateTargetMode")
     @SpirePatch2(clz = PotionPopUp.class, method = "updateInput")
     @SpirePatch2(clz = PotionPopUp.class, method = "updateTargetMode")
     public static class PotionUse {
