@@ -22,21 +22,46 @@ public class NeatQuest extends AbstractQuest {
         addReward(new QuestReward.RelicReward(new Binder()));
     }
 
-    public boolean hasPerfectDeck(AbstractCard card){
+    public boolean hasPerfectDeck(AbstractCard card) {
         int skills = 0;
         int powers = 0;
         int attacks = 0;
-        for (AbstractCard c : AbstractDungeon.player.masterDeck.group){
-            if (c.type.equals(AbstractCard.CardType.SKILL)){
+        for (AbstractCard c : AbstractDungeon.player.masterDeck.group) {
+            if (c.type.equals(AbstractCard.CardType.SKILL)) {
                 skills++;
             }
-            if (c.type.equals(AbstractCard.CardType.ATTACK)){
+            if (c.type.equals(AbstractCard.CardType.ATTACK)) {
                 attacks++;
             }
-            if (c.type.equals(AbstractCard.CardType.POWER)){
+            if (c.type.equals(AbstractCard.CardType.POWER)) {
                 powers++;
             }
         }
         return skills == 10 && attacks == 10 && powers == 5;
+    }
+
+    @Override
+    public boolean canSpawn() {
+        int skills = 0;
+        int attacks = 0;
+        int powers = 0;
+
+        for (AbstractCard c : AbstractDungeon.player.masterDeck.group) {
+            switch (c.type){
+                case SKILL:
+                    skills++;
+                    if (skills >= 13) { return false; }
+                    break;
+                case ATTACK:
+                    attacks++;
+                    if (attacks >= 13) { return false; }
+                    break;
+                case POWER:
+                    powers++;
+                    if (powers >= 8) { return false; }
+                    break;
+            }
+        }
+        return true;
     }
 }
