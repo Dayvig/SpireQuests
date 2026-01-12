@@ -23,5 +23,29 @@
     "TRACKER_TEXT": [
       "10 Skills, 10 Attacks, 5 Powers in deck."
     ]
+  },
+  "${ModID}:OneCost": {
+    "TITLE": "Normalcy",
+    "DESCRIPTION": "Add 10 1-cost cards to your deck.",
+    "AUTHOR": "Dayvig",
+    "TRACKER_TEXT": [
+      "1-cost cards added to deck."
+    ]
+  },
+  "${ModID}:ZeroCost": {
+    "TITLE": "Who needs energy?",
+    "DESCRIPTION": "Add 3 0-cost cards to your deck.",
+    "AUTHOR": "Dayvig",
+    "TRACKER_TEXT": [
+      "0-cost cards added to deck."
+    ]
+  },
+  "${ModID}:BigCost": {
+    "TITLE": "Heavy Hitter",
+    "DESCRIPTION": "Add 3 cards to your deck which cost 2 or more.",
+    "AUTHOR": "Dayvig",
+    "TRACKER_TEXT": [
+      "2+ cost cards added to deck."
+    ]
   }
 }
