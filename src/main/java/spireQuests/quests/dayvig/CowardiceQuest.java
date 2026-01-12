@@ -16,15 +16,18 @@ public class CowardiceQuest extends AbstractQuest {
                 .triggerCondition(this::dodgedElite)
                 .add(this);
 
-        addReward(new QuestReward.RelicReward(AbstractDungeon.returnRandomRelic(AbstractRelic.RelicTier.COMMON)));
+        addReward(new QuestReward.RandomRelicReward(AbstractRelic.RelicTier.COMMON));
     }
 
     public boolean dodgedElite(MapRoomNode currNode){
         boolean connectedToElite = false;
-        for (MapRoomNode m : AbstractDungeon.map.get(currNode.y + 1)){
-            if (m.getRoom() != null && currNode.isConnectedTo(m) && m.getRoom() instanceof MonsterRoomElite && m != AbstractDungeon.nextRoom){
-                connectedToElite = true;
-                break;
+        int y = currNode.y + 1;
+        if (AbstractDungeon.map.size() > y) {
+            for (MapRoomNode m : AbstractDungeon.map.get(y)){
+                if (m.getRoom() != null && currNode.isConnectedTo(m) && m.getRoom() instanceof MonsterRoomElite && m != AbstractDungeon.nextRoom){
+                    connectedToElite = true;
+                    break;
+                }
             }
         }
         return connectedToElite && !(AbstractDungeon.nextRoom.room instanceof MonsterRoomElite);

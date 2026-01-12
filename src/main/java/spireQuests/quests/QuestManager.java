@@ -5,6 +5,7 @@ import basemod.BaseMod;
 import basemod.abstracts.CustomSavable;
 import basemod.helpers.CardModifierManager;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireField;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
@@ -21,10 +22,12 @@ import spireQuests.cardmods.QuestboundMod;
 import spireQuests.patches.QuestRunHistoryPatch;
 import spireQuests.patches.QuestboundRelicsPatch;
 import spireQuests.questStats.QuestStatManager;
+import spireQuests.ui.QuestBoardScreen;
 import spireQuests.util.RelicMiscUtil;
 import spireQuests.util.Wiz;
 import spireQuests.vfx.ShowCardandFakeObtainEffect;
 
+import java.io.IOException;
 import java.util.*;
 
 import static spireQuests.Anniv8Mod.*;
@@ -43,8 +46,13 @@ public class QuestManager {
 
     public static SpireField<List<AbstractQuest>> currentQuests = new SpireField<>(ArrayList::new);
 
+    private static SpireConfig filterConfig;
+
     //Called once in postInitialize
     public static void initialize() {
+
+        filterConfig = makeFilterConfig();
+
         for (AbstractQuest.QuestDifficulty diff : AbstractQuest.QuestDifficulty.values()) {
             questsByDifficulty.put(diff, new ArrayList<>());
         }
@@ -70,19 +78,21 @@ public class QuestManager {
                     quest.loadSave(questSave.questData[i], questSave.questRewards[i]);
                     if(!quest.complete() && !quest.fail()) {
                         quest.questboundRelics = new ArrayList<>();
-                        for(int y = 0; y < questSave.questRelicIndex[i].length; ++y) {
-                            AbstractRelic r = null;
-                            try {
-                                r = Wiz.adp().relics.get(questSave.questRelicIndex[i][y]);
-                            }
-                            catch (ArrayIndexOutOfBoundsException e) {
-                                Anniv8Mod.logger.warn("Relic was not found for Quest ({})", quest.name);
-                            }
-                            if(r != null) {
-                                quest.questboundRelics.add(r);
-                                QuestboundRelicsPatch.QuestboundRelicFields.isQuestbound.set(r, quest);
-                                String questName = FontHelper.colorString(CardCrawlGame.languagePack.getUIString(quest.id).TEXT[0], "y");
-                                r.tips.add(new PowerTip(keywords.get("Questbound").PROPER_NAME, String.format(CardCrawlGame.languagePack.getUIString(makeID("Questbound")).TEXT[2],questName)));
+                        if (questSave.questRelicIndex[i] != null) {
+                            for(int y = 0; y < questSave.questRelicIndex[i].length; ++y) {
+                                AbstractRelic r = null;
+                                try {
+                                    r = Wiz.adp().relics.get(questSave.questRelicIndex[i][y]);
+                                }
+                                catch (ArrayIndexOutOfBoundsException e) {
+                                    Anniv8Mod.logger.warn("Relic was not found for Quest ({})", quest.name);
+                                }
+                                if(r != null) {
+                                    quest.questboundRelics.add(r);
+                                    QuestboundRelicsPatch.QuestboundRelicFields.isQuestbound.set(r, quest);
+                                    String questName = FontHelper.colorString(quest.name, "y");
+                                    r.tips.add(new PowerTip(keywords.get("Questbound").PROPER_NAME, String.format(CardCrawlGame.languagePack.getUIString(makeID("Questbound")).TEXT[2],questName)));
+                                }
                             }
                         }
                     }
@@ -139,19 +149,16 @@ public class QuestManager {
 
     public static void startQuest(AbstractQuest quest) {
         List<AbstractQuest> questList = quests();
-        if (questList.size() >= QUEST_LIMIT) {
-            AbstractQuest toRemove = questList.get(0);
-            Anniv8Mod.logger.info("Removing quest {} due to quest limit ({})!", toRemove.id, QUEST_LIMIT);
-            failQuest(toRemove);
-        }
 
         questList.add(quest);
         questList.sort(null);
         quest.onStart();
-        if (quest.questboundCards != null && questboundEnabled()) {
+        if (quest.questboundCards != null) {
             quest.questboundCards.forEach(c -> {
                 CardModifierManager.addModifier(c, new QuestboundMod(quest));
-                AbstractDungeon.effectList.add(new ShowCardandFakeObtainEffect(c.makeStatEquivalentCopy(), (float) (Settings.WIDTH / 2), (float) (Settings.HEIGHT / 2)));
+                if (questboundEnabled()) {
+                    AbstractDungeon.effectList.add(new ShowCardandFakeObtainEffect(c.makeStatEquivalentCopy(), (float) (Settings.WIDTH / 2), (float) (Settings.HEIGHT / 2)));
+                }
             });
         }
         if (quest.questboundRelics != null) {
@@ -160,7 +167,7 @@ public class QuestManager {
                 if(quest.removeQuestboundDuplicate) {
                     RelicMiscUtil.removeRelicFromPool(r);
                 }
-                String questName = FontHelper.colorString(CardCrawlGame.languagePack.getUIString(quest.id).TEXT[0], "y");
+                String questName = FontHelper.colorString(quest.name, "y");
                 r.instantObtain();
                 r.tips.add(new PowerTip(keywords.get("Questbound").PROPER_NAME, String.format(CardCrawlGame.languagePack.getUIString(makeID("Questbound")).TEXT[2],questName)));
             });
@@ -187,6 +194,18 @@ public class QuestManager {
             return;
         }
 
+        ArrayList<AbstractRelic> toRemove = new ArrayList<>();
+
+        for (AbstractRelic myRelic : Wiz.adp().relics){
+            if(QuestboundRelicsPatch.QuestboundRelicFields.isQuestbound.get(myRelic) == quest){
+                toRemove.add(myRelic);
+            }
+        }
+
+        for (AbstractRelic qbr : toRemove){
+            RelicMiscUtil.removeSpecificRelic(qbr);
+        }
+        
         if (quest.fail()) {
             quests().remove(quest);
             quest.onFail();
@@ -252,6 +271,46 @@ public class QuestManager {
     public static void failAllActiveQuests() {
         for (AbstractQuest q : quests()) {
             q.forceFail();
+        }
+    }
+
+    public static boolean canObtainQuests() {
+        return (QuestBoardScreen.parentProp.numQuestsPickable > 0) && (quests().size() < QUEST_LIMIT);
+    }
+
+    private static SpireConfig makeFilterConfig() {
+        try {
+            SpireConfig config = new SpireConfig(Anniv8Mod.modID, "filterConfig");
+            config.load();
+            return config;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static boolean getFilterConfig(String questID) {
+        if (filterConfig != null) {
+            if (filterConfig.has(questID)) {
+                return filterConfig.getBool(questID);
+            }
+            return true;
+        }
+
+        Anniv8Mod.logger.info("Error loading SpireQuest quest filters. Config not initialized?");
+        return true;
+    }
+
+    public static void setFilterConfig(String questID, boolean questEnabled) {
+        if (filterConfig != null) {
+            filterConfig.setBool(questID, questEnabled);
+            try {
+                filterConfig.save();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            Anniv8Mod.logger.info("Error loading SpireQuest quest filters. Config not initialized?");
         }
     }
 }

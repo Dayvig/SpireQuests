@@ -1,17 +1,21 @@
 package spireQuests.quests;
 
+import basemod.helpers.CardPowerTip;
 import com.evacipated.cardcrawl.modthespire.lib.*;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.characters.AbstractPlayer;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.PowerTip;
+import com.megacrit.cardcrawl.random.Random;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.potions.AbstractPotion.PotionRarity;
 import com.megacrit.cardcrawl.relics.AbstractRelic.RelicTier;
 import com.megacrit.cardcrawl.saveAndContinue.SaveFile;
 import javassist.CtBehavior;
 import spireQuests.Anniv8Mod;
+import spireQuests.patches.ShowMarkedNodesOnMapPatch;
+import spireQuests.questStats.StatRewardBox;
 import spireQuests.util.QuestStrings;
 import spireQuests.util.QuestStringsUtils;
 import spireQuests.util.WeightedList;
@@ -25,11 +29,14 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static spireQuests.Anniv8Mod.makeID;
 
 public abstract class AbstractQuest implements Comparable<AbstractQuest> {
     private static final String[] TEXT = CardCrawlGame.languagePack.getUIString(makeID("AbstractQuest")).TEXT;
+
+    public static Random rng;
 
     public enum QuestType {
         SHORT,
@@ -59,6 +66,8 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
     public List<QuestReward> questRewards;
     public boolean rewardScreenOnly = false;
 
+    public boolean isAbandoning = false;
+
     private int trackerTextIndex = 0;
 
     public List<Tracker> trackers;
@@ -79,6 +88,8 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
     //If true, the quest will automatically complete when the player leaves the room with the conditions fulfilled.
     public boolean isAutoComplete;
 
+    //If true, the quest will automatically fail when the player leaves the room with the fail conditions fulfilled.
+    public boolean isAutoFail;
     /*
     trackers that require another tracker to be completed first
 
@@ -101,6 +112,7 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
 
         complete = false;
         isAutoComplete = false;
+        isAutoFail = false;
 
         questStrings = QuestStringsUtils.getQuestString(id);
         if (questStrings == null) {
@@ -110,12 +122,12 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
     }
 
     public void setCost() {
-        this.hpCost = AbstractDungeon.miscRng.random(HP_COST_MIN_RANGE, HP_COST_MAX_RANGE);
-        this.goldCost = AbstractDungeon.miscRng.random(GOLD_COST_MIN_RANGE, GOLD_COST_MAX_RANGE);
+        this.hpCost = AbstractQuest.rng.random(HP_COST_MIN_RANGE, HP_COST_MAX_RANGE);
+        this.goldCost = AbstractQuest.rng.random(GOLD_COST_MIN_RANGE, GOLD_COST_MAX_RANGE);
 
         // neow room quests only cost hp to prevent weird shit with buying quests with gold and then losing all your gold to neow
         if (AbstractDungeon.floorNum > 1) {
-            this.usingGoldCost = AbstractDungeon.miscRng.randomBoolean();
+            this.usingGoldCost = AbstractQuest.rng.randomBoolean();
         } else {
             this.usingGoldCost = false;
         }
@@ -179,7 +191,26 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
         for (QuestReward reward : questRewards) {
             reward.addTooltip(tipList);
         }
-        if(questboundRelics != null || questboundCards != null) {
+
+        boolean hasQuestboundItems = false;
+
+        if(questboundRelics != null){
+            hasQuestboundItems = true;
+
+            for (AbstractRelic r : questboundRelics){
+                tipList.add(new PowerTip(r.name, r.description));
+            }
+        }
+
+        if(questboundCards != null){
+            hasQuestboundItems = true;
+
+            for (AbstractCard c : questboundCards){
+                tipList.add(new CardPowerTip(c));
+            }
+        }
+
+        if(hasQuestboundItems){
             tipList.add(new PowerTip(Anniv8Mod.keywords.get("Questbound").PROPER_NAME, Anniv8Mod.keywords.get("Questbound").DESCRIPTION));
         }
     }
@@ -203,12 +234,7 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
         trackers.add(questTracker);
 
         if (!questTracker.hidden) {
-            if (trackerTextIndex >= questStrings.TRACKER_TEXT.length) {
-               throw new RuntimeException("Quest " + id + " needs more entries in TRACKER_TEXT for its trackers");
-            }
-            
-            questTracker.text = questStrings.TRACKER_TEXT[trackerTextIndex];
-            trackerTextIndex++;
+            assignTrackerText(questTracker);
         }
 
         if (questTracker.trigger != null) triggers.add(questTracker.trigger);
@@ -216,6 +242,21 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
         if (questTracker.failTriggers != null) triggers.addAll(questTracker.failTriggers);
 
         return questTracker;
+    }
+
+    /**
+     * Sets the text of the tracker, which by default tracks the index of each tracker and uses the TRACKER_TEXT entry
+     * for that index. Override this for custom behavior.
+     *
+     * @param questTracker
+     */
+    protected void assignTrackerText(Tracker questTracker) {
+        if (trackerTextIndex >= questStrings.TRACKER_TEXT.length) {
+            throw new RuntimeException("Quest " + id + " needs more entries in TRACKER_TEXT for its trackers");
+        }
+
+        questTracker.text = questStrings.TRACKER_TEXT[trackerTextIndex];
+        trackerTextIndex++;
     }
 
     protected final AbstractQuest addReward(QuestReward reward) {
@@ -230,7 +271,7 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
         useDefaultReward = true;
 
         if (CardCrawlGame.isInARun()) {
-            QuestReward reward = getGenericRewardWeightedList().getRandom(AbstractDungeon.miscRng);
+            QuestReward reward = getGenericRewardWeightedList().getRandom(AbstractQuest.rng);
             questRewards.add(reward);
         }
         this.rewardsText = getRewardsText();
@@ -245,20 +286,20 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
         switch (this.difficulty) {
             default:
             case EASY:
-                rewards.add(new QuestReward.GoldReward(((AbstractDungeon.miscRng.random(50, 70) + 2) / 5) * 5), 3);
+                rewards.add(new QuestReward.GoldReward(((AbstractQuest.rng.random(50, 70) + 2) / 5) * 5), 3);
                 rewards.add(new QuestReward.PotionReward(AbstractDungeon.returnRandomPotion(PotionRarity.COMMON, true)), 2);
-                rewards.add(new QuestReward.MaxHPReward(AbstractDungeon.miscRng.random(5, 7)), 2);
+                rewards.add(new QuestReward.MaxHPReward(AbstractQuest.rng.random(5, 7)), 2);
                 break;
             case NORMAL:
-                rewards.add(new QuestReward.GoldReward(((AbstractDungeon.miscRng.random(90, 120) + 2) / 5) * 5), 4);
+                rewards.add(new QuestReward.GoldReward(((AbstractQuest.rng.random(90, 120) + 2) / 5) * 5), 4);
                 rewards.add(new QuestReward.PotionReward(AbstractDungeon.returnRandomPotion(PotionRarity.UNCOMMON, true)), 3);
-                rewards.add(new QuestReward.MaxHPReward(AbstractDungeon.miscRng.random(8, 10)), 2);
+                rewards.add(new QuestReward.MaxHPReward(AbstractQuest.rng.random(8, 10)), 2);
                 break;
             case HARD:
-                rewards.add(new QuestReward.GoldReward(((AbstractDungeon.miscRng.random(140, 180) + 2) / 5) * 5), 3);
+                rewards.add(new QuestReward.GoldReward(((AbstractQuest.rng.random(140, 180) + 2) / 5) * 5), 3);
                 rewards.add(new QuestReward.RandomRelicReward(RelicTier.COMMON), 2);
                 rewards.add(new QuestReward.RandomRelicReward(), 1);
-                rewards.add(new QuestReward.MaxHPReward(AbstractDungeon.miscRng.random(12, 14)), 2);
+                rewards.add(new QuestReward.MaxHPReward(AbstractQuest.rng.random(12, 14)), 2);
                 break;
         }
         
@@ -365,13 +406,22 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
         for (QuestReward r : questRewards) {
             r.init();
         }
+        if(this instanceof MarkNodeQuest) {
+            MarkNodeQuest q = (MarkNodeQuest) this;
+            q.markNodes(AbstractDungeon.map, q.rng());
+        }
     }
 
     public void onComplete() {
-
+        if(this instanceof MarkNodeQuest) {
+            ShowMarkedNodesOnMapPatch.ImageField.ClearMarks(id);
+        }
     }
 
     public void onFail() {
+        if(this instanceof MarkNodeQuest) {
+            ShowMarkedNodesOnMapPatch.ImageField.ClearMarks(id);
+        }
     }
 
     public boolean canSpawn() {
@@ -388,6 +438,23 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
         for (Tracker t : trackers) {
             t.refreshState();
         }
+    }
+
+    // Most quests can have these dynamically generated using the code below, however if your
+    // quest has a special reward structure or dynamic rewards, you may need to ovveride
+    // this function and manually define how Quest Log displays rewards.
+    public ArrayList<StatRewardBox> getStatRewardBoxes() {
+        ArrayList<StatRewardBox> ret = new ArrayList<>();
+
+        if (this.questRewards.isEmpty() || this.useDefaultReward) {
+            ret.add(new StatRewardBox(this));
+        } else {
+            for (QuestReward r : this.questRewards) {
+                ret.add(new StatRewardBox(r));
+            }
+        }
+
+        return ret;
     }
 
     public void loadSave(String[] questData, QuestReward.QuestRewardSave[] questRewardSaves) {
@@ -965,13 +1032,14 @@ public abstract class AbstractQuest implements Comparable<AbstractQuest> {
         @SpireInsertPatch(locator = Locator.class)
         public static void enteringRoomPatch(AbstractDungeon __instance, SaveFile file) {
             if (AbstractDungeon.currMapNode != null) {
-                AbstractQuest q = QuestManager.quests().stream()
+                QuestManager.quests().stream()
                         .filter(quest -> quest.isAutoComplete && quest.isCompleted())
-                        .findAny()
-                        .orElse(null);
-                if(q != null) {
-                    QuestManager.completeQuest(q);
-                }
+                        .collect(Collectors.toList())
+                        .forEach(QuestManager::completeQuest);
+                QuestManager.quests().stream()
+                        .filter(quest -> quest.isAutoFail && quest.isFailed())
+                        .collect(Collectors.toList())
+                        .forEach(QuestManager::failQuest);
             }
         }
 

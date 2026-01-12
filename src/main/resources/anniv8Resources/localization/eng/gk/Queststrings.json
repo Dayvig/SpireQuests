@@ -21,6 +21,9 @@
     "AUTHOR": "Gk",
     "TRACKER_TEXT": [
       "Played"
+    ],
+    "EXTRA_TEXT": [
+      "Play a specified starter card #b3 times in one combat."
     ]
   },
   "${ModID}:BountyICQuest": {
@@ -30,6 +33,14 @@
     "REWARD": "Replace the rewards with good #rIronclad themed ones.",
     "TRACKER_TEXT": [
       "Menace slain"
+    ]
+  },
+  "${ModID}:FavouriteCustomerQuest": {
+    "TITLE": "Favourite Customer",
+    "DESCRIPTION": "Spend money in shops #b10 times.",
+    "AUTHOR": "Gk",
+    "TRACKER_TEXT": [
+      "Money spent at shops"
     ]
   }
 }
