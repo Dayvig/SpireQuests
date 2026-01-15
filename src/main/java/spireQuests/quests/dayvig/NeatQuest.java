@@ -9,7 +9,7 @@ import spireQuests.quests.dayvig.relics.Binder;
 
 public class NeatQuest extends AbstractQuest {
     public NeatQuest() {
-        super(QuestType.LONG, QuestDifficulty.HARD);
+        super(QuestType.LONG, QuestDifficulty.CHALLENGE);
 
         new TriggerTracker<>(QuestTriggers.ADD_CARD, 1)
                 .triggerCondition(this::hasPerfectDeck)
@@ -40,6 +40,7 @@ public class NeatQuest extends AbstractQuest {
         return skills == 10 && attacks == 10 && powers == 5;
     }
 
+    /*
     @Override
     public boolean canSpawn() {
         int skills = 0;
@@ -63,5 +64,5 @@ public class NeatQuest extends AbstractQuest {
             }
         }
         return true;
-    }
+    }*/
 }
