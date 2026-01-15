@@ -10,6 +10,8 @@ import com.megacrit.cardcrawl.vfx.cardManip.ShowCardBrieflyEffect;
 import spireQuests.abstracts.AbstractSQRelic;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 import static spireQuests.Anniv8Mod.makeID;
 
@@ -26,6 +28,9 @@ public class Binder extends AbstractSQRelic {
         for (AbstractCard c: AbstractDungeon.player.masterDeck.group){
             if (c.canUpgrade()){ upgradableCards.add(c); }
         }
+
+        Collections.shuffle(upgradableCards, new Random(AbstractDungeon.miscRng.randomLong()));
+
         if (upgradableCards.isEmpty()){
             return;
         }
@@ -36,18 +41,12 @@ public class Binder extends AbstractSQRelic {
             AbstractDungeon.topLevelEffects.add(new UpgradeShineEffect((float)Settings.WIDTH / 2.0F, (float)Settings.HEIGHT / 2.0F));
         }
         else {
-            int upgrade1 = AbstractDungeon.miscRng.random(0, upgradableCards.size()-1);
-            int upgrade2;
-            do {
-                upgrade2 = AbstractDungeon.miscRng.random(0, upgradableCards.size()-1);
-            }
-            while (upgrade2 == upgrade1);
-            upgradableCards.get(upgrade1).upgrade();
-            AbstractDungeon.player.bottledCardUpgradeCheck(upgradableCards.get(upgrade1));
-            upgradableCards.get(upgrade2).upgrade();
-            AbstractDungeon.player.bottledCardUpgradeCheck(upgradableCards.get(upgrade2));
-            AbstractDungeon.topLevelEffects.add(new ShowCardBrieflyEffect((upgradableCards.get(upgrade1)).makeStatEquivalentCopy(), (float)Settings.WIDTH / 2.0F - AbstractCard.IMG_WIDTH / 2.0F - 20.0F * Settings.scale, (float)Settings.HEIGHT / 2.0F));
-            AbstractDungeon.topLevelEffects.add(new ShowCardBrieflyEffect((upgradableCards.get(upgrade2)).makeStatEquivalentCopy(), (float)Settings.WIDTH / 2.0F + AbstractCard.IMG_WIDTH / 2.0F + 20.0F * Settings.scale, (float)Settings.HEIGHT / 2.0F));
+            upgradableCards.get(0).upgrade();
+            AbstractDungeon.player.bottledCardUpgradeCheck(upgradableCards.get(0));
+            upgradableCards.get(1).upgrade();
+            AbstractDungeon.player.bottledCardUpgradeCheck(upgradableCards.get(1));
+            AbstractDungeon.topLevelEffects.add(new ShowCardBrieflyEffect((upgradableCards.get(0)).makeStatEquivalentCopy(), (float)Settings.WIDTH / 2.0F - AbstractCard.IMG_WIDTH / 2.0F - 20.0F * Settings.scale, (float)Settings.HEIGHT / 2.0F));
+            AbstractDungeon.topLevelEffects.add(new ShowCardBrieflyEffect((upgradableCards.get(1)).makeStatEquivalentCopy(), (float)Settings.WIDTH / 2.0F + AbstractCard.IMG_WIDTH / 2.0F + 20.0F * Settings.scale, (float)Settings.HEIGHT / 2.0F));
             AbstractDungeon.topLevelEffects.add(new UpgradeShineEffect((float)Settings.WIDTH / 2.0F, (float)Settings.HEIGHT / 2.0F));
         }
         }
