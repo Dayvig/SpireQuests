@@ -10,7 +10,7 @@
     "NAME": "Three Ring Binder",
     "FLAVOR": "The perfect tool for keeping everything exactly as it should be.",
     "DESCRIPTIONS": [
-      "If your deck has more than #b25 cards, the Merchant's card removal service always costs #b25 #yGold."
+      "On pickup, #yUpgrade #b2 random cards. If your deck has more than #b25 cards, the Merchant's card removal service always costs #b25 #yGold."
     ]
   }
 }
