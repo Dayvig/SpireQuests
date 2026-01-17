@@ -34,7 +34,7 @@
   },
   "${ModID}:BigCost": {
     "TITLE": "Heavy Hitter",
-    "DESCRIPTION": "Add 3 cards to your deck which cost 2 or more.",
+    "DESCRIPTION": "Add #b3 cards that cost #b2 or more to your deck.",
     "AUTHOR": "Dayvig",
     "TRACKER_TEXT": [
       "2+ cost cards added to deck."
