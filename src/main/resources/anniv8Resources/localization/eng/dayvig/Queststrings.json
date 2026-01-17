@@ -37,7 +37,7 @@
     "DESCRIPTION": "Add #b3 cards that cost #b2 or more to your deck.",
     "AUTHOR": "Dayvig",
     "TRACKER_TEXT": [
-      "2+ cost cards added to deck."
+      "2+ cost cards added to deck"
     ]
   }
 }
