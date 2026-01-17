@@ -11,13 +11,13 @@ public class BigCost extends AbstractQuest {
         super(QuestType.SHORT, QuestDifficulty.EASY);
 
         new TriggerTracker<>(QuestTriggers.ADD_CARD, 3)
-                .triggerCondition(this::isOneCost)
+                .triggerCondition(this::isBigCost)
                 .add(this);
 
         addReward(new QuestReward.GoldReward(50));
     }
 
-    public boolean isOneCost(AbstractCard card) {
+    public boolean isBigCost(AbstractCard card) {
         return card.cost >= 2;
     }
 

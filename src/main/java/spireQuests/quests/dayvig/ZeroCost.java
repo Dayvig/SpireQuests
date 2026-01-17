@@ -11,13 +11,13 @@ public class ZeroCost extends AbstractQuest {
         super(QuestType.SHORT, QuestDifficulty.EASY);
 
         new TriggerTracker<>(QuestTriggers.ADD_CARD, 3)
-                .triggerCondition(this::isOneCost)
+                .triggerCondition(this::isZeroCost)
                 .add(this);
 
         addReward(new QuestReward.GoldReward(50));
     }
 
-    public boolean isOneCost(AbstractCard card) {
+    public boolean isZeroCost(AbstractCard card) {
         return card.cost == 0;
     }
 
