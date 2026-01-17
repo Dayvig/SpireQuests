@@ -29,7 +29,7 @@
     "DESCRIPTION": "Add 3 0-cost cards to your deck.",
     "AUTHOR": "Dayvig",
     "TRACKER_TEXT": [
-      "0-cost cards added to deck."
+      "0-cost cards added to deck"
     ]
   },
   "${ModID}:BigCost": {
